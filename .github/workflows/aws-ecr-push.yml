@@ -37,8 +37,6 @@ jobs:
             --label service=${{ env.SERVICE_NAME }} \
             .
 
-            .
-
           docker tag \
             $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.SERVICE_NAME }}-${{ github.sha }} \
             $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.SERVICE_NAME }}-latest
