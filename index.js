@@ -98,9 +98,8 @@ async function ensureVillagesSeeded() {
           logger.info("Seeder completed successfully.");
           resolve();
         } else {
-          const msg = `Seeder exited with code ${code}${
-            signal ? " signal " + signal : ""
-          }`;
+          const msg = `Seeder exited with code ${code}${signal ? " signal " + signal : ""
+            }`;
           logger.error(msg);
           reject(new Error(msg));
         }
@@ -130,7 +129,7 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
 const CRON_SCHEDULE = process.env.CRON_SCHEDULE || "*/5 * * * *";
 const LEADERBOARD_REFRESH_SCHEDULE =
   process.env.LEADERBOARD_REFRESH_SCHEDULE || "0 1 * * *"; // Run at 1 AM every day
-const IS_NEW_BACKFILL_SCHEDULE = process.env.IS_NEW_BACKFILL_SCHEDULE || "*/30 * * * *" ; // Run every 30 minutes
+const IS_NEW_BACKFILL_SCHEDULE = process.env.IS_NEW_BACKFILL_SCHEDULE || "*/30 * * * *"; // Run every 30 minutes
 
 // Ensure winston_logs table has sync_status column
 async function ensureWinstonLogsSyncStatus() {
@@ -153,7 +152,7 @@ async function ensureWinstonLogsSyncStatus() {
         ALTER TABLE public.winston_logs 
         ADD COLUMN IF NOT EXISTS sync_status integer DEFAULT 0
       `);
-      
+
       // Set all existing rows to sync_status = 0 so they get processed
       // (This handles the case where column was just added with NULL values)
       await client.query(`
@@ -161,7 +160,7 @@ async function ensureWinstonLogsSyncStatus() {
         SET sync_status = 0 
         WHERE sync_status IS NULL
       `);
-      
+
       logger.info("Successfully added sync_status column to winston_logs table");
     } else {
       logger.debug("sync_status column already exists in winston_logs table");
@@ -724,50 +723,57 @@ async function processQuestionData(client, event) {
     const answerText = event.edata?.eks?.target?.questionsDetails?.answerText;
     const answer = answerText?.answer;
 
-    // Insert data into questions table
-    // await client.query(
-    //   `INSERT INTO questions (
-    //     uid, sid, group_details, channel, ets, 
-    //     question_text, question_source, answer_text, answer, is_new
-    //   ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-    //   [
-    //     uid,
-    //     sid,
-    //     JSON.stringify(groupDetails),
-    //     channel,
-    //     ets,
-    //     questionText,
-    //     questionSource,
-    //     JSON.stringify(answerText),
-    //     answer,
-    //   ]
-    // );
+    // Extract user identity fields from event
+    const target = event.edata?.eks?.target || {};
+    const uniqueId = target.unique_id || null;
+    const fingerprintId = target.fingerprint_id || uid || null;
+    const mobile = target.mobile || null;
+    const username = target.username || null;
+    const email = target.email || null;
+    const role = target.role || null;
+    const farmerId = target.farmer_id || null;
+    const registeredLocation = target.registered_location || null;
+    const deviceLocation = target.device_location || null;
+    const agristackLocation = target.agristack_location || null;
 
     await client.query(
-  `
+      `
  INSERT INTO questions (
   uid, sid, groupdetails, channel, ets,
-  questiontext, questionsource, answertext, answer, is_new
+  questiontext, questionsource, answertext, answer, is_new,
+  unique_id, fingerprint_id, mobile, username, email, role, farmer_id,
+  registered_location, device_location, agristack_location
 )
 VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, $9, 1
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, 1,
+  $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
 )
 ON CONFLICT (uid)
 DO UPDATE
 SET is_new = 0;
   `,
-  [
-    uid,
-    sid,
-    JSON.stringify(groupDetails),
-    channel,
-    ets,
-    questionText,
-    questionSource,
-    JSON.stringify(answerText),
-    answer,
-  ]
-);
+      [
+        uid,
+        sid,
+        JSON.stringify(groupDetails),
+        channel,
+        ets,
+        questionText,
+        questionSource,
+        JSON.stringify(answerText),
+        answer,
+        uniqueId,
+        fingerprintId,
+        mobile,
+        username,
+        email,
+        role,
+        farmerId,
+        registeredLocation ? JSON.stringify(registeredLocation) : null,
+        deviceLocation ? JSON.stringify(deviceLocation) : null,
+        agristackLocation ? JSON.stringify(agristackLocation) : null,
+      ]
+    );
 
     logger.info(
       `Processed question data for uid: ${uid}, question: ${questionText?.substring(
