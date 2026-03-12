@@ -444,7 +444,8 @@ async function ensureTablesExist() {
           "farmer_id": "edata.eks.target.farmer_id",
           "registered_location": "edata.eks.target.registered_location",
           "device_location": "edata.eks.target.device_location",
-          "agristack_location": "edata.eks.target.agristack_location"
+          "agristack_location": "edata.eks.target.agristack_location",
+          "fingerprint_id": "edata.eks.fingerprint_details.device_id"
         }','edata.eks.target.questionsDetails')
       ON CONFLICT DO NOTHING;
     `);
@@ -470,7 +471,8 @@ async function ensureTablesExist() {
           "farmer_id": "edata.eks.target.farmer_id",
           "registered_location": "edata.eks.target.registered_location",
           "device_location": "edata.eks.target.device_location",
-          "agristack_location": "edata.eks.target.agristack_location"
+          "agristack_location": "edata.eks.target.agristack_location",
+          "fingerprint_id": "edata.eks.fingerprint_details.device_id"
         }',
         field_verification = 'edata.eks.target.questionsDetails',
         updated_at = NOW()
@@ -495,7 +497,8 @@ async function ensureTablesExist() {
           "farmer_id": "edata.eks.target.farmer_id",
           "registered_location": "edata.eks.target.registered_location",
           "device_location": "edata.eks.target.device_location",
-          "agristack_location": "edata.eks.target.agristack_location"
+          "agristack_location": "edata.eks.target.agristack_location",
+          "fingerprint_id": "edata.eks.fingerprint_details.device_id"
         }','edata.eks.target.errorDetails')
       ON CONFLICT DO NOTHING;
     `);
@@ -518,7 +521,8 @@ async function ensureTablesExist() {
           "farmer_id": "edata.eks.target.farmer_id",
           "registered_location": "edata.eks.target.registered_location",
           "device_location": "edata.eks.target.device_location",
-          "agristack_location": "edata.eks.target.agristack_location"
+          "agristack_location": "edata.eks.target.agristack_location",
+          "fingerprint_id": "edata.eks.fingerprint_details.device_id"
         }',
         field_verification = 'edata.eks.target.errorDetails',
         updated_at = NOW()
@@ -547,7 +551,8 @@ async function ensureTablesExist() {
           "farmer_id": "edata.eks.target.farmer_id",
           "registered_location": "edata.eks.target.registered_location",
           "device_location": "edata.eks.target.device_location",
-          "agristack_location": "edata.eks.target.agristack_location"
+          "agristack_location": "edata.eks.target.agristack_location",
+          "fingerprint_id": "edata.eks.fingerprint_details.device_id"
         }','edata.eks.target.feedbackDetails')
       ON CONFLICT DO NOTHING;
     `);
@@ -574,7 +579,8 @@ async function ensureTablesExist() {
           "farmer_id": "edata.eks.target.farmer_id",
           "registered_location": "edata.eks.target.registered_location",
           "device_location": "edata.eks.target.device_location",
-          "agristack_location": "edata.eks.target.agristack_location"
+          "agristack_location": "edata.eks.target.agristack_location",
+          "fingerprint_id": "edata.eks.fingerprint_details.device_id"
         }',
         field_verification = 'edata.eks.target.feedbackDetails',
         updated_at = NOW()
@@ -725,8 +731,9 @@ async function processQuestionData(client, event) {
 
     // Extract user identity fields from event
     const target = event.edata?.eks?.target || {};
+    const fingerprintDetails = event.edata?.eks?.fingerprint_details || {};
     const uniqueId = target.unique_id || null;
-    const fingerprintId = target.fingerprint_id || uid || null;
+    const fingerprintId = fingerprintDetails.device_id || target.fingerprint_id || uid || null;
     const mobile = target.mobile || null;
     const username = target.username || null;
     const email = target.email || null;
