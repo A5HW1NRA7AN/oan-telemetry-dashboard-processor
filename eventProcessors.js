@@ -184,7 +184,7 @@ function registerProcessor(id,eventType, tableName, fieldMappings, fieldVerifica
         
         // Handle telemetry context fields that are not in individual events
         // but are part of the telemetry configuration
-        const telemetryContextFields = ['mobile', 'username', 'email', 'role', 'farmer_id'];
+        const telemetryContextFields = ['mobile', 'username', 'email', 'role', 'farmer_id', 'fingerprint_id'];
         const locationFields = ['registered_location', 'device_location', 'agristack_location'];
         
         if (telemetryContextFields.includes(path) || telemetryContextFields.includes(field.toLowerCase())) {
